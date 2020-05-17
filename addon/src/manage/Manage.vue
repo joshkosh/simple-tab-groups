@@ -646,6 +646,42 @@
             addTab(group, cookieStoreId) {
                 Tabs.add(group.id, cookieStoreId);
             },
+
+            // mta
+            addAllYouTubeTabsToGroup(group, cookieStoreId) {
+                //Groups.move(from.data.item.id, this.groups.indexOf(to.data.item));
+                //let tabIds = this.getTabIdsForMove(),
+                //let index = this.isGroup(to.data.item) ? undefined : to.data.item.index;
+                let groupId = group.id;
+                let tabIds = this.searchForTabs(groupId, "youtube");
+                let index = undefined;
+
+                //for (let i = 0; i < tabIds.length; i++) {
+                BG.Tabs.move(tabIds, groupId, index, false);
+                //for (let i = 0; i < 2; i++) {
+                    //let tabId = tabIds[i];
+                //}
+                //BG.Tabs.move(tabIds, groupId, index, false);
+                //return this.allTabs[tab.id] = new vue_runtime_esm["a" /* default */]({
+                //Tabs.add(group.id, cookieStoreId);
+            },
+
+            // mta
+            searchForTabs(groupId, searchStr) {
+                let filteredTabs = Object.values(this.allTabs).filter((tab) => {
+                    let tabGroupId = cache.getTabGroup(tab.id);
+                    if (tabGroupId != undefined) {
+                        tabGroupId = tabGroupId.id
+                    }
+                    return (
+                        tabGroupId != groupId
+                        && utils.mySearchFunc(searchStr, utils.getTabTitle(tab, true), false)
+                    );
+                }).map(tab => tab.id);
+
+                return filteredTabs;
+            },
+
             removeTab(tab) {
                 Tabs.remove(this.getTabIdsForMove(tab.id));
             },
@@ -1057,6 +1093,18 @@
                                     <img src="/icons/tab-new.svg">
                                 </div>
                                 <div class="tab-title text-ellipsis" v-text="lang('createNewTab')"></div>
+                            </div>
+
+                            <div
+                                v-if="!group.isArchive"
+                                class="tab new"
+                                title="Grab All YouTube"
+                                @click="addAllYouTubeTabsToGroup(group)"
+                                >
+                                <div :class="options.showTabsWithThumbnailsInManageGroups ? 'screenshot' : 'tab-icon'">
+                                    <img src="/icons/tab-new.svg">
+                                </div>
+                                <div class="tab-title text-ellipsis">Grab All Youtube</div>
                             </div>
                         </div>
                     </div>
