@@ -832,7 +832,7 @@ export default {
 						tabGroupId != groupId &&
 						utils.mySearchFunc(
 							searchStr,
-							utils.getTabTitle(tab, true),
+							utils.getTabTitle(tab, true, true),
 							false
 						)
 					);
