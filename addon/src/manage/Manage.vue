@@ -820,12 +820,30 @@ export default {
 			return tabs;
 		},
 
+		sortTabs(group) {
+			const groupId = group.id;
+			const tabs = Object.values(this.allTabs)
+				.filter((tab) => {
+					let tabGroupId = cache.getTabGroup(tab.id);
+					// some ids are nested. They might also just be a number
+					if (tabGroupId && typeof tabGroupId === "object") {
+						tabGroupId = tabGroupId.id;
+					}
+					return (tabGroupId === groupId);
+				});
+			tabs.sort((a, b) => {
+				return utils.getTabTitle(a, true) < utils.getTabTitle(b, true);
+			});
+			console.log(tabs);
+		},
+
 		// mta
 		searchForTabs(groupId, searchStr) {
 			let filteredTabs = Object.values(this.allTabs)
 				.filter((tab) => {
 					let tabGroupId = cache.getTabGroup(tab.id);
-					if (tabGroupId != undefined) {
+					// some ids are nested. They might also just be a number
+					if (tabGroupId && typeof tabGroupId === "object") {
 						tabGroupId = tabGroupId.id;
 					}
 					return (
@@ -1564,7 +1582,7 @@ export default {
 								</div>
 							</div>
 
-							<div
+							<!-- <div
 								v-if="!group.isArchive"
 								class="tab new"
 								:title="lang('createNewTab')"
@@ -1583,6 +1601,17 @@ export default {
 									class="tab-title text-ellipsis"
 									v-text="lang('createNewTab')"
 								></div>
+							</div> -->
+
+							<div
+								class="tab new"
+								title="Sort"
+								@click="sortTabs(group)"
+							>
+								<div :class="'tab-icon'" >
+									<img src="/icons/tab-new.svg" />
+								</div>
+								<div class="tab-title text-ellipsis">Sort</div>
 							</div>
 
 							<div
@@ -1590,13 +1619,7 @@ export default {
 								title="Grab"
 								@click="grabSomeTabs(group)"
 							>
-								<div
-									:class="
-										options.showTabsWithThumbnailsInManageGroups
-											? 'screenshot'
-											: 'tab-icon'
-									"
-								>
+								<div :class="'tab-icon'" >
 									<img src="/icons/tab-new.svg" />
 								</div>
 								<div class="tab-title text-ellipsis">Grab</div>
@@ -2106,7 +2129,7 @@ export default {
 				this.moveTabsToGroup(this.groupToAddTabsTo, this.tabSearchString);
 			}"
 		>
-			<input v-model="tabSearchString" placeholder="search string" @keyup="updateFoundTabs(groupToAddTabsTo, tabSearchString)" >
+			<input v-model="tabSearchString" placeholder="search string" @blur="updateFoundTabs(groupToAddTabsTo, tabSearchString)" >
 			<p>Count of found tabs: {{ foundTabs.length }}</p>
 		</popup>
 
