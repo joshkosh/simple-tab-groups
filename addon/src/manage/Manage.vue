@@ -796,7 +796,7 @@ export default {
 		},
 
 		// mta
-		grabSomeTabs(group, cookieStoreId) {
+		grabSomeTabs(group) {
 			this.groupToAddTabsTo = group;
 		},
 
@@ -821,20 +821,17 @@ export default {
 		},
 
 		sortTabs(group) {
-			const groupId = group.id;
-			const tabs = Object.values(this.allTabs)
-				.filter((tab) => {
-					let tabGroupId = cache.getTabGroup(tab.id);
-					// some ids are nested. They might also just be a number
-					if (tabGroupId && typeof tabGroupId === "object") {
-						tabGroupId = tabGroupId.id;
-					}
-					return (tabGroupId === groupId);
-				});
-			tabs.sort((a, b) => {
-				return utils.getTabTitle(a, true) < utils.getTabTitle(b, true);
+			group.tabs.sort((a, b) => {
+				let domainA = new URL(a.url).hostname;
+				let domainB = new URL(b.url).hostname;
+				if (domainA !== domainB) {
+					return domainA > domainB;
+				}
+				return a.title > b.title;
 			});
-			console.log(tabs);
+
+			const tabIds = group.tabs.map((tab) => tab.id);
+			BG.Tabs.moveSilly(tabIds, group.id, 0, false);
 		},
 
 		// mta
